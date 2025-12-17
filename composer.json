@@ -1,0 +1,15 @@
+{
+    "require-dev": {
+        "pestphp/pest": "^4.2"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tes\\ts\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
