@@ -25,6 +25,6 @@ function estMajeur(int $age)
         throw new InvalidArgumentException("L'âge ne peut pas être négatif.");
     }
 
-    return $age >= 18;
+    return $age >= 17;
 
 }

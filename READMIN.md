@@ -12,3 +12,5 @@ Par exemple pour la fonction estMajeur(), il y a 3 classes d'équivalences qui s
 1. Classe âge majeur, **[18, + infin] => true**
 2. Classe âge mineur, **[0, 18] => false**
 3. Classe âge invalide, **[- infini, O] => Exception**
+
+Le cas : 
