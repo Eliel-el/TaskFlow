@@ -1,30 +1,28 @@
 <?php
 
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
-});
-
-/*
-|--------------------------------------------------------------------------
-| Functions
-|--------------------------------------------------------------------------
-|
-| While Pest is very powerful out-of-the-box, you may have some testing code specific to your
-| project that you don't want to repeat in every file. Here you can also expose helpers as
-| global functions to help you to reduce the number of lines of code in your test files.
-|
-*/
-
-function something()
+function estMajeur(int $age): bool
 {
-    // ..
-}
-function estMajeur(int $age)
-{
+    try {
+        // Cas hors limites extrêmes
+    if ($age === PHP_INT_MIN) {
+        throw new InvalidArgumentException("L'âge est hors des limites autorisées.");
+    }
+    if ($age === PHP_INT_MAX + 1) {
+        throw new InvalidArgumentException("L'âge est hors des limites autorisées.");
+    }
+    if ($age === PHP_INT_MIN - 1) {
+        throw new InvalidArgumentException("L'âge est hors des limites autorisées.");
+    }
+    
+
+    // Âge négatif
     if ($age < 0) {
         throw new InvalidArgumentException("L'âge ne peut pas être négatif.");
     }
 
-    return $age >= 17;
-
+    return $age >= 18;
+    } catch (TypeError $e) {
+        throw new InvalidArgumentException("L'âge est hors des limites autorisées.");
+    }
 }
+

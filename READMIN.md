@@ -10,7 +10,17 @@ Une classe/partion d'équivalence c'est l'ensemble de valeur d'entrées qui donn
 
 Par exemple pour la fonction estMajeur(), il y a 3 classes d'équivalences qui sont : 
 1. Classe âge majeur, **[18, + infin] => true**
-2. Classe âge mineur, **[0, 18] => false**
-3. Classe âge invalide, **[- infini, O] => Exception**
+2. Classe âge mineur, **[0, 18[ => false**
+3. Classe âge invalide, **[- infini, O[ => Exception**
+NB : chaque cas d'une classe d'équivance est un cas de BASE
 
-Le cas : 
+### Le cas limites  
+
+Les cas limites sont des cas qui se trouvent entre deux classes d'équivalence consécutives. Voici les cas limites pour la fonction `estMajeur()` :
+
+1. Entre la classe "âge majeur" et "âge mineur" : **18 ans**.
+2. Entre la classe "âge mineur" et "âge invalide" : **0 ans**.
+
+### Les cas d'exctions
+
+
