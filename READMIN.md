@@ -24,3 +24,20 @@ Les cas limites sont des cas qui se trouvent entre deux classes d'équivalence c
 ### Les cas d'exctions
 
 
+### Procedure pour 
+premier ment chercher les classe d'equivalence :
+
+### les cas de base :
+titre ayant 5 a 255 CARS => titre invadide
+titre ayant 0 as 4 cars => titre invalide
+titre ayant plus de 255 => titr inalide
+
+### Cas limites : 
+Cas 1 : ""
+Cas 2 : "1234"
+Cas 3 : "12345"
+Cas 4 : str_repeatt("A", 255)
+Cas 5 : str_repaire("A", 2)
+
+### Cas d'exception :
+titre ayant seulant des espaces => titre invalide : Ex. cas "    "
