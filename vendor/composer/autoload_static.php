@@ -34,7 +34,9 @@ class ComposerStaticInitcadd5573984e3854ca0455d897e92dfa
         ),
         'T' => 
         array (
+            'Tests\\' => 6,
             'Termwind\\' => 9,
+            'TaskFlow\\' => 9,
         ),
         'S' => 
         array (
@@ -97,9 +99,17 @@ class ComposerStaticInitcadd5573984e3854ca0455d897e92dfa
         array (
             0 => __DIR__ . '/..' . '/webmozart/assert/src',
         ),
+        'Tests\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/tests',
+        ),
         'Termwind\\' => 
         array (
             0 => __DIR__ . '/..' . '/nunomaduro/termwind/src',
+        ),
+        'TaskFlow\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
         ),
         'Symfony\\Polyfill\\Mbstring\\' => 
         array (

@@ -2,9 +2,14 @@
     "require-dev": {
         "pestphp/pest": "^4.2"
     },
+    "autoload": {
+        "psr-4": {
+            "TaskFlow\\": "src/"
+        }
+    },
     "autoload-dev": {
         "psr-4": {
-            "Tes\\ts\\": "tests/"
+            "Tests\\": "tests/"
         }
     },
     "config": {
