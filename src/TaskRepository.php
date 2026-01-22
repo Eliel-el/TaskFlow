@@ -10,7 +10,7 @@
             $this->pdo->exec("CREATE TABLE IF NOT EXISTS tasks (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
-                is_completed INTEGER DEFAULT 0
+                is_completed INTEGER NOT NULL DEFAULT 0
             )");
         }
 
@@ -33,19 +33,8 @@
         }
 
         public function getAll(): array {
-            $stmt = $this->pdo->query("SELECT * FROM tasks");
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            $tasks = [];
-            foreach ($rows as $row) {
-                $task = new Task($row['title']);
-                if ($row['is_completed']) {
-                    $task->complete();
-                }
-                $tasks[] = $task;
-            }
-
-            return $tasks;
+            $statement = $this->pdo->query("SELECT * FROM tasks");
+            return $statement->fetchAll(PDO::FETCH_ASSOC);
         }
 
 }

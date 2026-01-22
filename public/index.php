@@ -5,20 +5,28 @@ use TaskFlow\TaskRepository;
 require __DIR__."/../vendor/autoload.php";
 
 $pdo = new PDO('sqlite:'.__DIR__."/../database.sqlite");
-$tasksRepsositotry = new TaskRepository($pdo);
-$taskController = new TaskController($tasksController);
+$tasksRepository = new TaskRepository($pdo);
+
+$taskController = new TaskController($tasksRepository);
 
 $methode = $_SERVER['REQUEST_METHOD'];
 $url = $_SERVER['REQUEST_URI'];
+if ($methode === 'GET' and $url === '/api/tasks') {
+    $response = $taskController->index();
 
-if ($methode === 'POST' and $url === '/apip/tasks') {
+    http_response_code($response['statut']);
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
+}
+if ($methode === 'POST' and $url === '/api/tasks') {
     $json = file_get_contents("php://input");
     $data = json_decode($json, true) ?? [];
 
     $response = $taskController->store($data);
 
-    http_response_code($response['status']);
-    header('Content-Type: appliction/json');
+    http_response_code($response['statut']);
+    header('Content-Type: application/json');
     echo json_encode($response);
     exit;
 } else {

@@ -17,6 +17,15 @@ class TaskController
     /**
      * API : POST /tasks
      */
+
+    // GET /api/tasks
+    public function index(): array
+    {
+        return [
+            'statut' => 200,
+            'data' => $this->taskRepository->getAll()
+        ];
+    }
     public function store(array $requestData): array
     {
         try {

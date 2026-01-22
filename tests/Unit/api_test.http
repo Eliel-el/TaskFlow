@@ -1,0 +1,20 @@
+### Tester la créeation d'une nouvelle tâche
+
+POST http://localhost:8000/api/tasks
+Content-Type: application/json
+
+{
+    "title": "Teste notre Api"
+}
+
+### Tester le création d'une nouvelle tâche avec un court
+
+POST http://localhost:8000/api/tasks
+Content-Type: application/json
+
+{
+    "title": "abc"
+}
+### Tester la récupération de la liste des tâches
+GET http://localhost:8000/api/tasks
+
