@@ -37,4 +37,24 @@
             return $statement->fetchAll(PDO::FETCH_ASSOC);
         }
 
+        public function findById(int $id): ?Task {
+            $statement = $this->pdo->prepare("SELECT * FROM tasks WHERE id = :id");
+            $statement->execute(['id' => $id]);
+            $data = $statement->fetch(PDO::FETCH_ASSOC);
+
+            if (!$data) {
+                return null;
+            }
+
+            $task = new Task($data['title'], (int)$data['id']);
+            if ($data['is_completed']) {
+                $task->complete();
+            }
+            return $task;
+        }
+
+        public function delete(int $id): void {
+            $statement = $this->pdo->prepare("DELETE FROM tasks WHERE id = :id");
+            $statement->execute(['id' => $id]);
+        }
 }

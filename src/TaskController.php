@@ -62,4 +62,41 @@ class TaskController
             ];
         }
     }
+
+    public function update(int $id, array $data): array
+    {
+        $task = $this->taskRepository->findById($id);
+        if (!$task) {
+            return ['statut' => 404, 'error' => 'Tache introuvable'];
+        }
+
+        if (isset($data['is_completed']) && $data['is_completed'] === true) {
+            $task->complete();
+            $this->taskRepository->save($task);
+        }
+
+        return [
+            'statut' => 200,
+            'data' => [
+                'id' => $task->getId(),
+                'title' => $task->getTitle(),
+                'is_completed' => $task->isCompleted()
+            ]
+        ];
+    }
+
+    public function delete(int $id): array
+    {
+        $task = $this->taskRepository->findById($id);
+        if (!$task) {
+            return ['statut' => 404, 'error' => 'Tache introuvable'];
+        }
+
+        $this->taskRepository->delete($id);
+
+        return [
+            'statut' => 204,
+            'data' => null
+        ];
+    }
 }

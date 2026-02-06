@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #3b82f6;
+            width: 20px;
+            height: 20px;
+            -webkit-animation: spin 1s linear infinite; /* Safari */
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 font-sans">
+
+    <div class="container mx-auto px-4 py-10 max-w-2xl">
+        
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-blue-600 tracking-tight">TaskFlow</h1>
+            <p class="text-gray-500 mt-2">Gérez vos tâches efficacement</p>
+        </header>
+
+        <!-- Formulaire d'ajout -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-lg font-semibold mb-4 text-gray-700">Nouvelle Tâche</h2>
+            <form id="taskForm" class="flex gap-4">
+                <input 
+                    type="text" 
+                    id="taskTitle" 
+                    placeholder="Qu'avez-vous à faire ?" 
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    required
+                    minlength="5"
+                >
+                <button 
+                    type="submit" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition duration-200 flex items-center justify-center min-w-[120px]"
+                    id="submitBtn"
+                >
+                    <span>Ajouter</span>
+                    <div id="loadingSpinner" class="loader ml-2 hidden"></div>
+                </button>
+            </form>
+            <p id="errorMessage" class="text-red-500 text-sm mt-2 hidden"></p>
+        </div>
+
+        <!-- Liste des tâches -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <h2 class="text-lg font-semibold text-gray-700">Vos Tâches</h2>
+                <div class="flex gap-2">
+                     <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full border border-green-200 shadow-sm">Validées : <span id="completedCount">0</span></span>
+                     <span class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full border border-blue-200 shadow-sm">Total : <span id="totalCount">0</span></span>
+                </div>
+            </div>
+            
+            <ul id="taskList" class="divide-y divide-gray-100">
+                <!-- Les tâches seront injectées ici -->
+                <li class="px-6 py-8 text-center text-gray-400 italic" id="emptyState">
+                    Chargement des tâches...
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        const taskForm = document.getElementById('taskForm');
+        const taskTitleInput = document.getElementById('taskTitle');
+        const taskList = document.getElementById('taskList');
+        const emptyState = document.getElementById('emptyState');
+        const totalCount = document.getElementById('totalCount');
+        const completedCount = document.getElementById('completedCount');
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const submitText = submitBtn.querySelector('span');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Charger les tâches au démarrage
+        document.addEventListener('DOMContentLoaded', fetchTasks);
+
+        // Gérer la soumission du formulaire
+        taskForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = taskTitleInput.value.trim();
+            if (title.length < 5) return;
+
+            setLoading(true);
+            errorMessage.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/tasks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title: title })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    taskTitleInput.value = '';
+                    fetchTasks(); // Recharger la liste
+                } else {
+                    showError(result.error || 'Une erreur est survenue');
+                }
+            } catch (error) {
+                showError('Erreur de connexion au serveur');
+                console.error('Erreur:', error);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Fonction pour récupérer les tâches
+        async function fetchTasks() {
+            try {
+                const response = await fetch('/api/tasks');
+                if (!response.ok) throw new Error('Erreur réseau');
+                
+                const data = await response.json();
+                
+                // La réponse est { statut: 200, data: [...] }
+                renderTasks(data.data);
+            } catch (error) {
+                console.error('Erreur chargement tâches:', error);
+                taskList.innerHTML = `<li class="px-6 py-4 text-center text-red-500">Impossible de charger les tâches.</li>`;
+            }
+        }
+
+        // Afficher les tâches dans le DOM
+        function renderTasks(tasks) {
+            if (!tasks || tasks.length === 0) {
+                taskList.innerHTML = `<li class="px-6 py-8 text-center text-gray-400 italic">Aucune tâche pour le moment. Commencez par en ajouter une !</li>`;
+                totalCount.textContent = '0';
+                completedCount.textContent = '0';
+                return;
+            }
+
+            totalCount.textContent = tasks.length;
+            completedCount.textContent = tasks.filter(t => t.is_completed == 1).length;
+
+            taskList.innerHTML = tasks.map(task => `
+                <li class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition duration-150 group">
+                    <div class="flex items-center gap-3">
+                        <div class="relative flex items-center">
+                            <input 
+                                type="checkbox" 
+                                class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" 
+                                ${task.is_completed == 1 ? 'checked' : ''}
+                                ${task.is_completed == 1 ? 'disabled' : ''}
+                                onchange="completeTask(${task.id})"
+                            >
+                        </div>
+                        <span class="text-lg ${task.is_completed == 1 ? 'text-gray-400 line-through' : 'text-gray-700'}">
+                            ${escapeHtml(task.title)}
+                        </span>
+                    </div>
+                    <button onclick="deleteTask(${task.id})" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition p-2" title="Supprimer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                           <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </button> 
+                </li>
+            `).join('');
+        }
+
+        async function completeTask(id) {
+            try {
+                const response = await fetch('/api/tasks/' + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_completed: true })
+                });
+
+                if (response.ok) {
+                    fetchTasks();
+                } else {
+                    showError('Impossible de valider la tâche');
+                }
+            } catch (error) {
+                console.error(error);
+                showError('Erreur réseau');
+            }
+        }
+
+        async function deleteTask(id) {
+            if(!confirm('Voulez-vous vraiment supprimer cette tâche ?')) return;
+
+            try {
+                const response = await fetch('/api/tasks/' + id, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    fetchTasks();
+                } else {
+                    showError('Impossible de supprimer la tâche');
+                }
+            } catch (error) {
+                console.error(error);
+                showError('Erreur réseau');
+            }
+        }
+
+        // Utilitaires
+        function setLoading(isLoading) {
+            if (isLoading) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                loadingSpinner.classList.remove('hidden');
+                submitText.textContent = 'Ajout...';
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                loadingSpinner.classList.add('hidden');
+                submitText.textContent = 'Ajouter';
+            }
+        }
+
+        function showError(msg) {
+            errorMessage.textContent = msg;
+            errorMessage.classList.remove('hidden');
+            setTimeout(() => {
+                errorMessage.classList.add('hidden');
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
